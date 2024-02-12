@@ -1,4 +1,6 @@
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 import tiktoken
 import numpy as np  
 import os
@@ -11,7 +13,6 @@ import random
 from PIL import Image
 
 # When you are working locally set your api keys with this:
-openai.api_key = os.getenv('OPENAI_API_KEY')
 pinecone_api_key = os.getenv('PINECONE_API_KEY')
 
 # When you are uploading to Streamlit, set your keys like this:
@@ -83,11 +84,9 @@ def num_tokens_from_string(string, encoding_name):
 
 
 def get_embedding(text, model):
-    result = openai.Embedding.create(
-      model=model,
-      input=text
-    )
-    return result["data"][0]["embedding"]
+    result = client.embeddings.create(model=model,
+    input=text)
+    return result.data[0].embedding
 
 
 
@@ -163,10 +162,8 @@ def summarize_past_conversation(content):
     prompt = "Summarize this discussion into a single paragraph keeping the topics mentioned: \n" + content
 
     try:
-        response = openai.Completion.create(
-                    prompt=prompt,
-                    **APPEND_COMPLETION_PARAMS
-                )
+        response = client.completions.create(prompt=prompt,
+        **APPEND_COMPLETION_PARAMS)
     except Exception as e:
         print("I'm afraid your question failed! This is the error: ")
         print(e)
@@ -197,14 +194,12 @@ def answer_query_with_context_pinecone(query):
     print(prompt)
     print("---------------------------------------------")
     try:
-        response = openai.ChatCompletion.create(
-                    messages=[{"role": "system", "content": "You are a helpful AI who knows a great deal about Spring Garden Waldorf School Accrediation. You understand the complete document and are happy to answer any questions anyone may have about this document. \n"},
-                            {"role": "user", "content": str(prompt)}],
-                            # {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
-                            # {"role": "user", "content": "Where was it played?"}
-                            # ]
-                    **COMPLETIONS_API_PARAMS
-                )
+        response = client.chat.completions.create(messages=[{"role": "system", "content": "You are a helpful AI who knows a great deal about Spring Garden Waldorf School Accrediation. You understand the complete document and are happy to answer any questions anyone may have about this document. \n"},
+                {"role": "user", "content": str(prompt)}],
+                # {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
+                # {"role": "user", "content": "Where was it played?"}
+                # ]
+        **COMPLETIONS_API_PARAMS)
     except Exception as e:
         print("I'm afraid your question failed! This is the error: ")
         print(e)
