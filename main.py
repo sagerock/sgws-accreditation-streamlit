@@ -133,7 +133,7 @@ def construct_prompt_pinecone(question):
 
     #print(xq)
 
-    res = pineconeindex.query([xq], top_k=30, include_metadata=True, namespace="cfa-site")
+    res = pineconeindex.query([xq], top_k=30, include_metadata=True, namespace="sgws-accred")
 
     #print(res)
     # print(most_relevant_document_sections[:2])
